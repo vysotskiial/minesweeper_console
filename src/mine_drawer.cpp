@@ -12,6 +12,7 @@ namespace {
 
 MineBoard my_board(height, width, bomb_n);
 time_t cur_time;
+int timer_id = 0;
 std::map<int, int> buttons = {{GLUT_RIGHT_BUTTON, GLUT_UP}, {GLUT_LEFT_BUTTON, GLUT_UP}};
 
 void draw_grid() {
@@ -185,6 +186,8 @@ void mouse_func(int button, int state, int x, int y)
 		return;
 	}
 
+	if (y < 30) return;
+
 	if (my_board.game_over || my_board.victory_flag) return;
 
 	int cell_x = y / width - 1;
@@ -193,7 +196,7 @@ void mouse_func(int button, int state, int x, int y)
 	if ((buttons[GLUT_LEFT_BUTTON] == GLUT_DOWN) && (buttons[GLUT_RIGHT_BUTTON] == GLUT_DOWN))
 		my_board.open_around(cell_x, cell_y);
 	else if (buttons[GLUT_LEFT_BUTTON] == GLUT_DOWN) {
-		if (!my_board.is_active()) glutTimerFunc(1000, timer_f, 0);
+		if (!my_board.is_active()) glutTimerFunc(1000, timer_f, ++timer_id);
 		my_board.open(cell_x, cell_y);
 	}
 	else if (buttons[GLUT_RIGHT_BUTTON] == GLUT_DOWN)
@@ -203,9 +206,9 @@ void mouse_func(int button, int state, int x, int y)
 }
 
 void timer_f(int i) {
-	if (!my_board.is_active()) return;
+	if (!my_board.is_active() || i != timer_id) return;
 	cur_time++;
-	glutTimerFunc(1000, timer_f, 0);
+	glutTimerFunc(1000, timer_f, i);
 	glutPostRedisplay();
 }
 
