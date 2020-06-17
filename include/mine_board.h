@@ -1,40 +1,49 @@
 #pragma once
-#include "time.h"
+#include <array>
 #include <vector>
 
-class MineBoard
-{
+constexpr int height = 16;
+constexpr int width = 30;
+constexpr int bomb_n = 99;
+
+class MineBoard {
 private:
-	struct Cell {
-		bool is_mine = false;
-		bool is_open = false;
-		bool is_flag = false;
-		std::vector<Cell*> neighbors;
-		int bombs_around = 0;
-	} **board;
-	void place_bombs(int clear_x, int clear_y);  //set mines
-	int height;
-	int width;
-	int bomb_numb;
-	int flag_numb;
-	float blow_up_x, blow_up_y;
+	class Cell {
+		friend class MineBoard;
+		bool is_mine{false};
+		std::vector<Cell *> neighbors;
+		MineBoard *owner;
+
+	public:
+		Cell &operator=(const Cell &) = delete;
+		bool is_open{false};
+		int bombs_around{0};
+		bool is_flag{false};
+		void open();
+		void open_around();
+		void flag();
+	};
+	using Row = std::array<Cell, width>;
+	std::array<Row, height> board;
 	void set_neighbors(int i, int j);
-	void add_neighbor(Cell &c, int i, int j);
-	int open_cells_num = 0;
+	void find_explosion();
+
+	int _flag_num{0};
+	int open_cells_num{0};
+	bool _lose{false};
+	bool _win{false};
+	int blow_up_x{0};
+	int blow_up_y{0};
+
 public:
-	MineBoard(int _height, int _width, int _bomb_numb);
-	float get_blow_x() { return blow_up_x; }
-	float get_blow_y() { return blow_up_y; }
-	int get_board(int i, int j) { return board[i][j].bombs_around; }
-	void open_around(int x, int y);   //double click solver
-	void open(int x, int y);        //opens cell x,y and surroundings if board[x][y]=0, if there is bomb on x,y returns 0, otherwise 1
-	bool get_flag(int i, int j) { return board[i][j].is_flag; }
-	bool get_open(int i, int j) { return board[i][j].is_open; }
-	bool game_over = false;
-	bool victory_flag = false;
-	void put_flag(int x, int y);
-	bool is_active() { return !(game_over || victory_flag || (open_cells_num == 0)); }
+	MineBoard();
+	Cell &operator()(int x, int y) { return board[x][y]; }
+	bool is_active() { return !(_win || _lose || (open_cells_num == 0)); }
+	void place_bombs(int i, int j);
 	void reset();
-	int get_flags_num() { return flag_numb; }
-	~MineBoard();
+	constexpr int flag_num() const noexcept { return _flag_num; }
+	constexpr bool win() const noexcept { return _win; }
+	constexpr bool lose() const noexcept { return _lose; }
+	constexpr int explosion_x() const noexcept { return blow_up_x; }
+	constexpr int explosion_y() const noexcept { return blow_up_y; }
 };
