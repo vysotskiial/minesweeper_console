@@ -6,9 +6,17 @@ using namespace std;
 constexpr int screen_width = 900;
 constexpr int screen_height = 510;
 
-int main(int argc, char *argv[])
+//int main(int argc, char *argv[])
+int WinMain(
+	HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR     lpCmdLine,
+	int       nShowCmd
+)
 {
-	glutInit(&argc, argv);
+	int argc = 0;
+	char* argv = "abcd";
+	glutInit(&argc, &argv);
 
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100, 100);

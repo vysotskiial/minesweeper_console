@@ -2,6 +2,7 @@
 #include <GL/freeglut_ext.h>
 
 #include <map>
+#include <string>
 #include "mine_drawer.h"
 #include "mine_board.h"
 
